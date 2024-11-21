@@ -1,0 +1,70 @@
+`timescale 1ns / 1ps
+
+module Prueba_VGA(
+    input clock,
+    input [31:0] instruction,
+    output reg [2:0] red,
+    output reg [2:0] green,
+    output reg [1:0] blue,
+    output reg hsync,
+    output reg vsync
+);
+
+// Este código no se modifica
+reg [9:0] hcount = 0;
+reg [9:0] vcount = 0;
+reg [1:0] counter = 0;
+reg enable;
+
+// Enable
+always @(posedge clock) begin
+    if (counter == 3) begin
+        counter <= 1'b0;
+        enable <= 1'b1;
+    end else begin
+        counter <= counter + 1'b1;
+        enable <= 1'b0;
+    end
+end
+
+// Vsync y Hsync
+always @(posedge clock) begin
+    if (enable == 1) begin
+        if (hcount == 799) begin
+            hcount <= 0;
+            if (vcount == 524) begin
+                vcount <= 0;
+            end else begin
+                vcount <= vcount + 1'b1;
+            end
+        end else begin
+            hcount <= hcount + 1'b1;
+        end
+
+        // Generación de señales de sincronización
+        if (vcount >= 490 && vcount < 492) begin
+            vsync <= 1'b1;
+        end else begin
+            vsync <= 1'b0;
+        end
+
+        if (hcount >= 656 && hcount < 752) begin
+            hsync <= 1'b1;
+        end else begin
+            hsync <= 1'b0;
+        end
+    end
+end
+
+// Mostrar instrucción en pantalla
+always @(posedge clock) begin
+    if (enable == 1) begin
+        // Aquí puedes agregar la lógica para mostrar la instrucción en la pantalla VGA
+        // Por ejemplo, podrías mapear los bits de la instrucción a los colores RGB
+        red <= instruction[2:0];
+        green <= instruction[5:3];
+        blue <= instruction[7:6];
+    end
+end
+
+endmodule

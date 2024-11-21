@@ -1,0 +1,18 @@
+module ScreenRAM (
+    input logic clk,                   // Reloj (entrada)
+    input logic we,                    // Señal de escritura (entrada)
+    input logic [13:0] addr,           // Dirección de memoria (entrada)
+    input logic [7:0] din,             // Datos de entrada (entrada)
+    output logic [7:0] dout            // Datos de salida (salida)
+);
+    // Memoria RAM para almacenar los caracteres de la pantalla
+    logic [7:0] ram [0:1999]; // 2000 posiciones de 8 bits (80 columnas * 25 filas)
+
+    // Operación de lectura/escritura
+    always_ff @(posedge clk) begin
+        if (we) begin
+            ram[addr] <= din; // Escritura en la RAM
+        end
+        dout <= ram[addr]; // Lectura de la RAM
+    end
+endmodule
